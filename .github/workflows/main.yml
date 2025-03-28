@@ -1,0 +1,38 @@
+name: Split PT Tracker List
+
+on:
+  schedule:
+    - cron: '0 0 * * *'  # 每天 UTC 00:00 运行（可调整时间）
+  workflow_dispatch:      # 允许手动触发
+
+jobs:
+  split-tracker:
+    runs-on: ubuntu-latest
+    steps:
+      # 检出代码
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      # 下载最新的 tracker 列表（假设从某个 URL 获取）
+      - name: Download tracker list
+        run: |
+          curl https://raw.githubusercontent.com/adysec/tracker/refs/heads/main/trackers_all.txt >> trackers_all.txt
+          
+          # 如果你有其他来源，可以在这里添加逻辑
+
+      # 运行分类脚本
+      - name: Run split script
+        run: |
+          chmod +x scripts/split_tracker.sh
+          ./scripts/split_tracker.sh
+
+      # 提交更改
+      - name: Commit and push changes
+        run: |
+          git config --global user.name "GitHub Action"
+          git config --global user.email "action@github.com"
+          git add trackers.txt output/pt_tracker_domain.txt output/pt_tracker_ip.txt
+          git commit -m "Update tracker list and split results - $(date +'%Y-%m-%d')"
+          git push
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
