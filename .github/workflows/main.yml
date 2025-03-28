@@ -35,4 +35,4 @@ jobs:
           git commit -m "Update tracker list and split results - $(date +'%Y-%m-%d')"
           git push
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{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}}
