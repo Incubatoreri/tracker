@@ -4,7 +4,10 @@ on:
   schedule:
     - cron: '0 0 * * *'  # 每天 UTC 00:00 运行（可调整时间）
   workflow_dispatch:      # 允许手动触发
-
+  
+permissions:
+  contents: write  # 允许写入代码
+  
 jobs:
   split-tracker:
     runs-on: ubuntu-latest
