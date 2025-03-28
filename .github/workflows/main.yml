@@ -34,5 +34,3 @@ jobs:
           git add trackers_all.txt output/pt_tracker_domain.txt output/pt_tracker_ip.txt
           git commit -m "Update tracker list and split results - $(date +'%Y-%m-%d')"
           git push
-        env:
-          GITHUB_TOKEN: ${{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}}
