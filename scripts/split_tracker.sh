@@ -25,4 +25,3 @@ sort -u "$DOMAIN_FILE" -o "$DOMAIN_FILE"
 sort -u "$IP_FILE" -o "$IP_FILE"
 echo "域名已保存到 $DOMAIN_FILE"
 echo "IP地址已保存到 $IP_FILE"
-EOF
