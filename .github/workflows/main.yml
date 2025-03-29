@@ -6,27 +6,37 @@ on:
       - main
   workflow_dispatch:  # 允许手动触发
 
-permissions:
-  contents: write  # 允许写入代码
-  
 jobs:
   split-tracker:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write  # 确保有写入权限
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
+
+      - name: Download tracker list
+        run: |
+          curl -o trackers_all.txt "https://raw.githubusercontent.com/ngosang/trackerslist/master/trackers_all.txt"
+          echo "Downloaded trackers_all.txt"
+          cat trackers_all.txt  # 调试：显示下载内容
 
       - name: Run split script
         run: |
           chmod +x scripts/split_tracker.sh
           ./scripts/split_tracker.sh
 
+      - name: Check output files
+        run: |
+          echo "Checking output files..."
+          ls -la output/
+          cat output/pt_tracker_domain.txt || echo "Domain file empty or not created"
+          cat output/pt_tracker_ip.txt || echo "IP file empty or not created"
+
       - name: Commit and push changes
         run: |
           git config --global user.name "GitHub Action"
           git config --global user.email "action@github.com"
-          git add output/pt_tracker_domain.txt output/pt_tracker_ip.txt
-          git commit -m "Update split tracker results - $(date +'%Y-%m-%d')" || echo "No changes to commit"
+          git add trackers_all.txt output/pt_tracker_domain.txt output/pt_tracker_ip.txt
+          git commit -m "Update trackers_all.txt and split results - $(date +'%Y-%m-%d')" || echo "No changes to commit"
           git push
-
-
