@@ -1,5 +1,5 @@
 #!/bin/bash
-INPUT_FILE="trackers.txt"
+INPUT_FILE="trackers_all.txt"
 DOMAIN_FILE="output/pt_tracker_domain.txt"
 IP_FILE="output/pt_tracker_ip.txt"
 PROTOCOL_FILE="output/pt_tracker_protocol.txt"
