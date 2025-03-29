@@ -1,39 +1,33 @@
-name: 分类 PT 追踪器列表
+name: Split PT Tracker List
 
 on:
   schedule:
-    - cron: '0 0 * * *'  # 每天 UTC 00:00 运行（可调整时间）
-  workflow_dispatch:      # 允许手动触发
+    - cron: '0 0 * * *'
+  workflow_dispatch:
   
 permissions:
   contents: write  # 允许写入代码
-
+  
 jobs:
-  classify-trackers:
+  split-tracker:
     runs-on: ubuntu-latest
-
     steps:
-      - name: 检出代码
-        uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v3
 
-      - name: 解析 `trackers_all.txt` 并分类
+      - name: Download tracker list
         run: |
-          # 确保文件存在
-          if [ ! -f trackers_all.txt ]; then
-            echo "trackers_all.txt 文件不存在！"
-            exit 1
-          fi
+          curl -o trackers.txt "https://raw.githubusercontent.com/ngosang/trackerslist/master/trackers_all.txt"
 
-          # 提取 IP 地址（IPv4）
-          grep -Eo '([0-9]{1,3}\.){3}[0-9]{1,3}' trackers_all.txt | sort -u > output/pt_tracker_ip.txt
+      - name: Run split script
+        run: |
+          chmod +x scripts/split_tracker.sh
+          ./scripts/split_tracker.sh
 
-          # 提取域名（去掉 http://、https://、udp://、wss://）
-          grep -Eo '(https?|udp|wss)://[^:/]+' trackers_all.txt | sed -E 's#(https?|udp|wss)://##' | sort -u > output/pt_tracker_domain.txt
-
-      - name: 提交更新
+      - name: Commit and push changes
         run: |
           git config --global user.name "GitHub Action"
-          git config --global user.email "github-actions[bot]@users.noreply.github.com"
-          git add output/pt_tracker_ip.txt output/pt_tracker_domain.txt
-          git commit -m "更新 tracker 列表 - $(date +'%Y-%m-%d')" || echo "No changes to commit"
+          git config --global user.email "action@github.com"
+          git add trackers.txt output/pt_tracker_domain.txt output/pt_tracker_ip.txt
+          git commit -m "Update tracker list and split results - $(date +'%Y-%m-%d')"
           git push
