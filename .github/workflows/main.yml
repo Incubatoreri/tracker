@@ -1,11 +1,9 @@
 name: Split Tracker List
-
 on:
   push:
     branches:
       - main
   workflow_dispatch:
-
 jobs:
   split-tracker:
     runs-on: ubuntu-latest
@@ -13,7 +11,7 @@ jobs:
       contents: write
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Download tracker list
         run: |
@@ -22,18 +20,21 @@ jobs:
           ls -la
           head -n 10 trackers_all.txt || echo "trackers_all.txt is empty"
 
-      - name: Run split script
+      - name: Classify trackers
         run: |
-          chmod +x scripts/split_tracker.sh
-          ./scripts/split_tracker.sh
-          ls -la output/ || echo "No output directory created"
-          cat output/pt_tracker_domain.txt || echo "Domain file not created"
-          cat output/pt_tracker_ip.txt || echo "IP file not created"
+          mkdir -p output
+          # 提取 IP 地址（IPv4）
+          grep -Eo '([0-9]{1,3}\.){3}[0-9]{1,3}' trackers_all.txt | sort -u > output/pt_tracker_ip.txt
+          # 提取域名
+          grep -Eo '(https?|udp|wss)://[^:/]+' trackers_all.txt | sed -E 's#(https?|udp|wss)://##' | sort -u > output/pt_tracker_domain.txt
+          ls -la output/
+          cat output/pt_tracker_ip.txt || echo "IP file empty"
+          cat output/pt_tracker_domain.txt || echo "Domain file empty"
 
       - name: Commit and push changes
         run: |
           git config --global user.name "GitHub Action"
-          git config --global user.email "action@github.com"
-          git add trackers_all.txt output/pt_tracker_domain.txt output/pt_tracker_ip.txt
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add trackers_all.txt output/pt_tracker_ip.txt output/pt_tracker_domain.txt
           git commit -m "Update trackers_all.txt and split results - $(date +'%Y-%m-%d')" || echo "Nothing to commit"
-          git push || echo "Push failed"
+          git push
