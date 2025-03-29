@@ -39,5 +39,4 @@ jobs:
           git add trackers_all.txt output/pt_tracker_domain.txt output/pt_tracker_ip.txt  # 更新为 trackers_all.txt
           git commit -m "Update tracker list and split results - $(date +'%Y-%m-%d')"
           git push
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    
