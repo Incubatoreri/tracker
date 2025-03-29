@@ -1,10 +1,10 @@
-
-name: Split PT Tracker List
+name: Split Tracker List
 
 on:
-  schedule:
-    - cron: '0 0 * * *'
-  workflow_dispatch:
+  push:
+    branches:
+      - main
+  workflow_dispatch:  # 允许手动触发
 
 permissions:
   contents: write  # 允许写入代码
@@ -16,10 +16,6 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      - name: Download tracker list
-        run: |
-          curl -o trackers_all.txt "https://raw.githubusercontent.com/ngosang/trackerslist/master/trackers_all.txt"
-
       - name: Run split script
         run: |
           chmod +x scripts/split_tracker.sh
@@ -29,6 +25,8 @@ jobs:
         run: |
           git config --global user.name "GitHub Action"
           git config --global user.email "action@github.com"
-          git add trackers.txt output/pt_tracker_domain.txt output/pt_tracker_ip.txt
-          git commit -m "Update tracker list and split results - $(date +'%Y-%m-%d')"
+          git add output/pt_tracker_domain.txt output/pt_tracker_ip.txt
+          git commit -m "Update split tracker results - $(date +'%Y-%m-%d')" || echo "No changes to commit"
           git push
+
+
