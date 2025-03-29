@@ -1,10 +1,11 @@
+
 name: Split PT Tracker List
 
 on:
   schedule:
     - cron: '0 0 * * *'
   workflow_dispatch:
-  
+
 permissions:
   contents: write  # 允许写入代码
   
@@ -17,17 +18,26 @@ jobs:
 
       - name: Download tracker list
         run: |
-          curl -o trackers_all.txt "https://raw.githubusercontent.com/ngosang/trackerslist/master/trackers_all.txt"
+          curl -o trackers_all.txt "https://raw.githubusercontent.com/ngosang/trackerslist/master/trackers_all.txt"  # 更新为 trackers_all.txt
 
       - name: Run split script
         run: |
           chmod +x scripts/split_tracker.sh
           ./scripts/split_tracker.sh
 
+      - name: Debug output files
+        run: |
+          echo "Domains:"
+          cat output/pt_tracker_domain.txt
+          echo "IPs:"
+          cat output/pt_tracker_ip.txt
+
       - name: Commit and push changes
         run: |
           git config --global user.name "GitHub Action"
           git config --global user.email "action@github.com"
-          git add trackers_all.txt output/pt_tracker_domain.txt output/pt_tracker_ip.txt
+          git add trackers_all.txt output/pt_tracker_domain.txt output/pt_tracker_ip.txt  # 更新为 trackers_all.txt
           git commit -m "Update tracker list and split results - $(date +'%Y-%m-%d')"
           git push
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
